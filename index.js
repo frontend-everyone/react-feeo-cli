@@ -13,12 +13,12 @@ program.version('1.0.0', '-v, --version')
         if(!fs.existsSync(name)){
             inquirer.prompt([
                 {
-                    name: 'description',
-                    message: '请输入项目描述'
+                    name: 'pxToRem',
+                    message: 'px to rem (Y/N)'
                 },
                 {
-                    name: 'author',
-                    message: '请输入作者名称'
+                    name: 'token',
+                    message: 'token verify (Y/N)'
                 }
             ]).then((answers) => {
                 const spinner = ora('正在下载模板...');
@@ -30,15 +30,22 @@ program.version('1.0.0', '-v, --version')
                     }else{
                         spinner.succeed();
                         const fileName = `${name}/package.json`;
+                        const fileName1 = `${name}/config/site.config.json`;
                         const meta = {
                             name,
-                            description: answers.description,
-                            author: answers.author
-                        }
-                        if(fs.existsSync(fileName)){
+                            pxToRem: answers.pxToRem.toUpperCase() === 'Y' ? 1 : "" ,
+                            token: answers.token.toUpperCase() === 'Y' ? 1 : ""
+                        };
+                        const fsWrite = function(fileName){
                             const content = fs.readFileSync(fileName).toString();
                             const result = handlebars.compile(content)(meta);
                             fs.writeFileSync(fileName, result);
+                        };
+                        if(fs.existsSync(fileName)){
+                            fsWrite(fileName)
+                        }
+                        if(fs.existsSync(fileName1)){
+                            fsWrite(fileName1)
                         }
                         console.log(symbols.success, chalk.green('项目初始化完成'));
                     }
