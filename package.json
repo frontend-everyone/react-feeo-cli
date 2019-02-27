@@ -1,13 +1,15 @@
 {
   "name": "react-feeo-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "react-feeo-cli",
   "main": "index.js",
   "bin": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["react-feeo-cli"],
+  "keywords": [
+    "react-feeo-cli"
+  ],
   "author": "frontend-everyone",
   "license": "ISC",
   "dependencies": {
@@ -17,6 +19,7 @@
     "handlebars": "^4.0.11",
     "inquirer": "^6.0.0",
     "log-symbols": "^2.2.0",
+    "node-fetch": "^2.3.0",
     "ora": "^3.0.0"
   }
 }

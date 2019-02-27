@@ -7,27 +7,58 @@ const inquirer = require("inquirer");
 const ora = require("ora");
 const chalk = require("chalk");
 const symbols = require("log-symbols");
+const fetch = require("node-fetch");
 program
-  .version("1.0.0", "-v, --version")
+  .version("1.0.2", "-v, --version")
   .command("init <name>")
-  .action(name => {
+  .action(async name => {
+    const versionList = [];
+    const versionFetch = ora("Get version number...");
+    versionFetch.start();
+    try {
+      const responseVersion = await fetch(
+        "https://api.github.com/repos/frontend-everyone/react-feeo/branches"
+      )
+        .then(response => response.json())
+        .then(response => response)
+        .catch(err => {
+          console.log(err);
+        });
+      responseVersion.forEach(data => versionList.push(data.name));
+      versionFetch.succeed("version get Success");
+    } catch (error) {
+      console.log(error);
+      versionFetch.fail("version get failure, please try again");
+      return;
+    }
+
     if (!fs.existsSync(name)) {
       inquirer
         .prompt([
           {
-            name: "pxToRem",
-            message: "px to rem (Y/N)"
+            type: "list",
+            name: "versionList",
+            message: "select react version?",
+            choices: versionList
           },
           {
+            type: "list",
+            name: "pxToRem",
+            message: "px to rem (Y/N)",
+            choices: ["YES", "NO"]
+          },
+          {
+            type: "list",
             name: "token",
-            message: "token verify (Y/N)"
+            message: "token verify (Y/N)",
+            choices: ["YES", "NO"]
           }
         ])
         .then(answers => {
           const spinner = ora("Downloading template...");
           spinner.start();
           download(
-            "github:frontend-everyone/react-feeo",
+            "github:frontend-everyone/react-feeo#" + answers.versionList,
             name,
             { clone: true },
             err => {
@@ -40,8 +71,8 @@ program
                 const fileName1 = `${name}/config/site.config.json`;
                 const meta = {
                   name,
-                  pxToRem: answers.pxToRem.toUpperCase() === "Y" ? 1 : "",
-                  token: answers.token.toUpperCase() === "Y" ? 1 : ""
+                  pxToRem: answers.pxToRem.toUpperCase() === "YES" ? 1 : "",
+                  token: answers.token.toUpperCase() === "YES" ? 1 : ""
                 };
                 const fsWrite = function(fileName) {
                   const content = fs.readFileSync(fileName).toString();
@@ -61,7 +92,7 @@ program
         });
     } else {
       // Error prompt item already exists to avoid overwriting the original item
-      console.log(symbols.error, chalk.red("项目已存在"));
+      console.log(symbols.error, chalk.red("The project already exists"));
     }
   });
 program.parse(process.argv);
